@@ -1,0 +1,7 @@
+*~
+.*.sw*
+*.class
+*.log
+.direnv/
+pgsql/
+import/tmp/
