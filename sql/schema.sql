@@ -43,9 +43,7 @@ CREATE UNLOGGED TABLE ruian_adresni_misto (
 
 COMMENT ON TABLE ruian_adresni_misto IS 'Import: Adresni mista RUIAN';
 
-CREATE INDEX ON ruian_adresni_misto (kod_obce, nazev_obce);
-CREATE INDEX ON ruian_adresni_misto (kod_casti_obce, nazev_casti_obce, kod_obce);
-CREATE INDEX ON ruian_adresni_misto (kod_ulice, nazev_ulice, kod_obce);
+CREATE INDEX ON ruian_adresni_misto (kod_obce);
 
 CREATE TABLE ruian_okres (
   kod_okresu              integer NOT NULL,  -- Kód
