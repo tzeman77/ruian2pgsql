@@ -1,4 +1,4 @@
-TAG=$(shell date -d "$(date +%Y-%m-01) -1 day" +%Y%m%d)
+TAG=$(shell date -d "$$(date +%Y-%m-01) -1 day" +%Y%m%d)
 WGET=wget
 PSQL=psql -h localhost -U ruian
 UNZIP=unzip
