@@ -3,5 +3,8 @@
 *.class
 *.log
 .direnv/
+.idea
+.idea_modules
+out/
 pgsql/
 import/tmp/
