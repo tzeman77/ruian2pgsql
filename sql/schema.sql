@@ -15,8 +15,11 @@ DROP MATERIALIZED VIEW IF EXISTS adresni_misto;
 DROP TABLE IF EXISTS ruian_adresni_misto;
 DROP TABLE IF EXISTS ruian_okres;
 DROP TABLE IF EXISTS ruian_vazby_cr;
+DROP TYPE IF EXISTS typ_so;
 
 -- IMPORT TABLES
+
+CREATE TYPE typ_so AS ENUM ('č.p.', 'č.ev.');
 
 CREATE UNLOGGED TABLE ruian_adresni_misto (
   kod_adm                 integer NOT NULL,  -- Kód ADM
@@ -30,7 +33,7 @@ CREATE UNLOGGED TABLE ruian_adresni_misto (
   nazev_casti_obce        varchar NOT NULL,  -- Název části obce
   kod_ulice               integer,           -- Kód ulice
   nazev_ulice             varchar,           -- Název ulice
-  typ_so                  varchar(16) NOT NULL, -- Typ SO
+  typ_so                  typ_so NOT NULL,   -- Typ SO
   cislo_domovni           integer NOT NULL,  -- Číslo domovní
   cislo_orientacni        integer,           -- Číslo orientační
   znak_cisla_orientacniho varchar(4),        -- Znak čísla orientačního
