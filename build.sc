@@ -24,6 +24,8 @@ object V {
 }
 
 object D {
+  val configAnnotation = ivy"com.wacai::config-annotation:0.4.1"
+  val quill = ivy"io.getquill::quill-jasync-postgres:3.7.0"
   val upickle = ivy"com.lihaoyi::upickle::1.3.11"
 }
 
@@ -80,14 +82,26 @@ object model extends Module {
 
 }
 
+object dba extends Common {
+  override def moduleDeps = Seq(model.jvm)
+  override def ivyDeps: T[Loose.Agg[Dep]] = Agg(D.configAnnotation, D.quill)
+  override def scalacOptions = T {
+    super.scalacOptions.map(_ :+
+      s"-Xmacro-settings:conf.output.dir=${millSourcePath / 'resources}"
+    )
+  }
+}
+
 def publishLocal(): Command[Unit] = T.command{
   model.jvm.publishLocal()()
   model.js.publishLocal()()
+  dba.publishLocal()()
 }
 
 def publishM2Local(p: os.Path): Command[Unit] = T.command{
   model.jvm.publishM2Local(p.toString)()
   model.js.publishM2Local(p.toString)()
+  dba.publishM2Local(p.toString)()
   ()
 }
 

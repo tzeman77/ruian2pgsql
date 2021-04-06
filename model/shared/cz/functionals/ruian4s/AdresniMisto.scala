@@ -29,8 +29,8 @@ case class AdresniMisto(
   cisloOrientacni: Option[Int] = None,
   znakCislaOrientacniho: Option[String] = None,
   psc: Psc,
-  jtsk: Option[Jtsk] = None,
-  platiOd: Option[String] = None
+  jtsk: Option[Jtsk] = None
+  //platiOd: Option[Date] = None
 )
 
 object AdresniMisto {
