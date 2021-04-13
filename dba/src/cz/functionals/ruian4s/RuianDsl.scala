@@ -65,6 +65,14 @@ trait RuianDsl extends RuianDb {
         take lift(max)
       )
 
+    def castObce(tsv: String, max: Int = 20)(
+      implicit ec: ExecutionContext): Future[Seq[CastObce]] =
+      run(query[CastObce]
+        filter(_.kodObce == lift(kod))
+        filter(_.nazev @@ lift(tsv))
+        take lift(max)
+      )
+
   }
 
   def ulice(kod: Kod[Ulice]) = new {
@@ -73,6 +81,17 @@ trait RuianDsl extends RuianDb {
       implicit ec: ExecutionContext): Future[Seq[AdresniMisto]] =
       run(query[AdresniMisto]
         filter(_.kodUlice contains lift(kod))
+        take lift(max)
+      )
+
+  }
+
+  def castObce(kod: Kod[CastObce]) = new {
+
+    def adresniMista(max: Int = 200)(
+      implicit ec: ExecutionContext): Future[Seq[AdresniMisto]] =
+      run(query[AdresniMisto]
+        filter(_.kodCastiObce contains lift(kod))
         take lift(max)
       )
 
