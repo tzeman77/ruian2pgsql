@@ -61,6 +61,33 @@ trait RuianDb {
     run(query[AdresniMisto].filter(_.kod == lift(kod))) map(_.headOption)
   }
 
+  def adresniMistoDetail(kod: Kod[AdresniMisto])(
+    implicit ec: ExecutionContext): Future[Option[AdresniMisto.Detail]] = {
+    run(
+      query[AdresniMisto]
+        .filter(_.kod == lift(kod))
+        .join(query[Obec]).on(_.kodObce == _.kod)
+        .join(query[Okres]).on(_._2.kodOkresu == _.kod)
+        .join(query[Kraj]).on(_._2.kodKraje == _.kod)
+        .leftJoin(query[Momc]).on(_._1._1._1.kodMomc contains _.kod)
+        .leftJoin(query[Mop]).on(_._1._1._1._1.kodMop contains _.kod)
+        .leftJoin(query[CastObce])
+          .on(_._1._1._1._1._1.kodCastiObce contains _.kod)
+        .leftJoin(query[Ulice])
+          .on(_._1._1._1._1._1._1.kodUlice contains _.kod)
+        .take(1)
+    ) map(_.headOption map(v => AdresniMisto.Detail(
+      adm = v._1._1._1._1._1._1._1,
+      obec = v._1._1._1._1._1._1._2,
+      momc = v._1._1._1._2,
+      mop = v._1._1._2,
+      castObce = v._1._2,
+      ulice = v._2,
+      okres = v._1._1._1._1._1._2,
+      kraj = v._1._1._1._1._2
+    )))
+  }
+
 }
 
 object RuianDb extends RuianDb

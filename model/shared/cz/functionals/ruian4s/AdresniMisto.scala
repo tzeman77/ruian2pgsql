@@ -35,4 +35,19 @@ case class AdresniMisto(
 
 object AdresniMisto {
   implicit val rw: ReadWriter[AdresniMisto] = macroRW[AdresniMisto]
+
+  case class Detail(
+    adm: AdresniMisto,
+    obec: Obec,
+    momc: Option[Momc] = None,
+    mop: Option[Mop] = None,
+    castObce: Option[CastObce] = None,
+    ulice: Option[Ulice] = None,
+    okres: Okres,
+    kraj: Kraj
+  )
+
+  object Detail {
+    implicit val rw: ReadWriter[Detail] = macroRW[Detail]
+  }
 }
