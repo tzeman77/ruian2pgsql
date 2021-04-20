@@ -15,7 +15,7 @@
  */
 package cz.functionals.ruian4s
 
-import io.getquill.{PostgresJAsyncContext, SnakeCase}
+import io.getquill.{PostgresJAsyncContext, Query, SnakeCase}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -56,6 +56,37 @@ trait RuianDb {
 
   }
 
+  object detail {
+
+    val templateQ: ctx.Quoted[Query[(((((((AdresniMisto, Obec), Okres), Kraj), Option[Momc]), Option[Mop]), Option[CastObce]), Option[Ulice])]] = quote {
+      query[AdresniMisto]
+        .join(query[Obec]).on(_.kodObce == _.kod)
+        .join(query[Okres]).on(_._2.kodOkresu == _.kod)
+        .join(query[Kraj]).on(_._2.kodKraje == _.kod)
+        .leftJoin(query[Momc]).on(_._1._1._1.kodMomc contains _.kod)
+        .leftJoin(query[Mop]).on(_._1._1._1._1.kodMop contains _.kod)
+        .leftJoin(query[CastObce])
+        .on(_._1._1._1._1._1.kodCastiObce contains _.kod)
+        .leftJoin(query[Ulice])
+        .on(_._1._1._1._1._1._1.kodUlice contains _.kod)
+    }
+
+    def mapper(d: (((((((AdresniMisto, Obec), Okres), Kraj), Option[Momc]), Option[Mop]), Option[CastObce]), Option[Ulice])): AdresniMisto.Detail = d match {
+      case (((((((adm, ob), okr), kr), momc), mop), cp), str) =>
+        AdresniMisto.Detail(
+          adm = adm,
+          obec = ob,
+          momc = momc,
+          mop = mop,
+          castObce = cp,
+          ulice = str,
+          okres = okr,
+          kraj = kr
+        )
+    }
+
+  }
+
   def adresniMisto(kod: Kod[AdresniMisto])(
     implicit ec: ExecutionContext): Future[Option[AdresniMisto]] = {
     run(query[AdresniMisto].filter(_.kod == lift(kod))) map(_.headOption)
@@ -64,28 +95,12 @@ trait RuianDb {
   def adresniMistoDetail(kod: Kod[AdresniMisto])(
     implicit ec: ExecutionContext): Future[Option[AdresniMisto.Detail]] = {
     run(
-      query[AdresniMisto]
-        .filter(_.kod == lift(kod))
-        .join(query[Obec]).on(_.kodObce == _.kod)
-        .join(query[Okres]).on(_._2.kodOkresu == _.kod)
-        .join(query[Kraj]).on(_._2.kodKraje == _.kod)
-        .leftJoin(query[Momc]).on(_._1._1._1.kodMomc contains _.kod)
-        .leftJoin(query[Mop]).on(_._1._1._1._1.kodMop contains _.kod)
-        .leftJoin(query[CastObce])
-          .on(_._1._1._1._1._1.kodCastiObce contains _.kod)
-        .leftJoin(query[Ulice])
-          .on(_._1._1._1._1._1._1.kodUlice contains _.kod)
+      detail.templateQ
+        .filter { case (((((((adm, _), _), _), _), _), _), _) =>
+          adm.kod == lift(kod)
+        }
         .take(1)
-    ) map(_.headOption map(v => AdresniMisto.Detail(
-      adm = v._1._1._1._1._1._1._1,
-      obec = v._1._1._1._1._1._1._2,
-      momc = v._1._1._1._2,
-      mop = v._1._1._2,
-      castObce = v._1._2,
-      ulice = v._2,
-      okres = v._1._1._1._1._1._2,
-      kraj = v._1._1._1._1._2
-    )))
+    ) map(_.headOption map detail.mapper)
   }
 
 }
