@@ -33,7 +33,7 @@ trait RuianDb {
     MappedEncoding[String, TypSo](TypSo(_))
 
   implicit val encodeJtsk: MappedEncoding[Jtsk, String] =
-    MappedEncoding[Jtsk, String](v => s"POINT(${v.x}, ${v.y})")
+    MappedEncoding[Jtsk, String](v => s"(${v.x}, ${v.y})")
   implicit val decodeJtsk: MappedEncoding[String, Jtsk] =
     MappedEncoding[String, Jtsk](s => {
       val a = s.stripPrefix("(").stripSuffix(")").split(',')
