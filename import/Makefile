@@ -74,6 +74,7 @@ $(struct_imp): $(struct_zip)
 
 $(okresy_csv): $(wdir)
 	$(WGET) -O $@.tmp $(OKRESY_URL)
+	expr `cat $@.tmp | wc -l` '>' 70 
 	mv $@.tmp $@ && touch $@
 
 $(okresy_imp): $(okresy_csv)
