@@ -39,7 +39,7 @@ refresh:
 
 $(addr_zip): $(wdir)
 	$(WGET) -O $@.tmp $(ADDR_URL)
-	mv $@.tmp $@
+	mv $@.tmp $@ && touch $@
 
 $(addr_cmd): $(addr_zip)
 	rm -fr $T/CSV
@@ -59,7 +59,7 @@ $(addr_imp): $(addr_cmd) $(struct_imp)
 
 $(struct_zip): $(wdir)
 	$(WGET) -O $@.tmp $(STRUCT_URL)
-	mv $@.tmp $@
+	mv $@.tmp $@ && touch $@
 
 $(struct_imp): $(struct_zip)
 	rm -fr $T/strukturovane-CSV
@@ -74,7 +74,7 @@ $(struct_imp): $(struct_zip)
 
 $(okresy_csv): $(wdir)
 	$(WGET) -O $@.tmp $(OKRESY_URL)
-	mv $@.tmp $@
+	mv $@.tmp $@ && touch $@
 
 $(okresy_imp): $(okresy_csv)
 	@echo "BEGIN; \
