@@ -1,3 +1,4 @@
+SHELL:=$(shell which bash)
 TAG=$(shell date -d "$$(date +%Y-%m-01) -1 day" +%Y%m%d)
 WGET=wget
 PSQL=psql -h localhost -U ruian -v ON_ERROR_STOP=on
