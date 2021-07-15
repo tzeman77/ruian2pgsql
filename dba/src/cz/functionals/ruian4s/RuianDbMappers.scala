@@ -32,20 +32,15 @@ trait RuianDbMappers {
       GpsPoint(lon = Longitude(a(0).toDouble), lat = Latitude(a(1).toDouble))
     })
 
-  implicit class TsvQuery(col: String) {
-
-    def @@(q: String) = quote {
-      infix"${col}_tsv @@ to_tsquery($q)".as[Boolean]
+  implicit class JtskDistance(col: Option[Jtsk]) {
+    def <->(q: Jtsk) = quote {
+      infix"$col <-> $q".as[BigDecimal]
     }
-
   }
 
-  implicit class TsvQueryOpt(col: Option[String]) {
-
-    def @@(q: String) = quote {
-      infix"${col}_tsv @@ to_tsquery($q)".as[Boolean]
+  implicit class GpsDistance(col: Option[GpsPoint]) {
+    def <->(q: GpsPoint) = quote {
+      infix"$col <-> $q".as[Double]
     }
-
   }
-
 }

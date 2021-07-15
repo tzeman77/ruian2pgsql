@@ -27,6 +27,22 @@ trait RuianDb extends RuianDbMappers {
 
   import ctx._
 
+  implicit class TsvQuery(col: String) {
+
+    def @@(q: String) = quote {
+      infix"${col}_tsv @@ to_tsquery($q)".as[Boolean]
+    }
+
+  }
+
+  implicit class TsvQueryOpt(col: Option[String]) {
+
+    def @@(q: String) = quote {
+      infix"${col}_tsv @@ to_tsquery($q)".as[Boolean]
+    }
+
+  }
+
   object detail {
 
     val templateQ: ctx.Quoted[Query[(((((((AdresniMisto, Obec), Okres), Kraj), Option[Momc]), Option[Mop]), Option[CastObce]), Option[Ulice])]] = quote {
