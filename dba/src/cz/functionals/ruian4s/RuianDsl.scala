@@ -15,6 +15,7 @@
  */
 package cz.functionals.ruian4s
 
+import scala.annotation.nowarn
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -40,7 +41,7 @@ trait RuianDsl extends RuianDb {
 
   def okres(kod: Kod[Okres]) = new {
 
-    final def obce(implicit ec: ExecutionContext): Future[Seq[Obec]] =
+    final def obce(implicit @nowarn ec: ExecutionContext): Future[Seq[Obec]] =
       run(query[Obec] filter(_.kodOkresu == lift(kod)) sortBy(_.nazev))
 
   }
@@ -48,25 +49,25 @@ trait RuianDsl extends RuianDb {
   def obec(kod: Kod[Obec]) = new {
 
     def ulice(tsv: String, max: Int = 20)(
-      implicit ec: ExecutionContext): Future[Seq[Ulice]] =
+      implicit @nowarn ec: ExecutionContext): Future[Seq[Ulice]] =
       run(query[Ulice]
         filter(_.kodObce == lift(kod))
         filter(_.nazev @@ lift(tsv))
         take lift(max)
       )
 
-    def momc(implicit ec: ExecutionContext): Future[Seq[Momc]] =
+    def momc(implicit @nowarn ec: ExecutionContext): Future[Seq[Momc]] =
       run(query[Momc] filter(_.kodObce == lift(kod)) sortBy(_.nazev))
 
     def adresniMista(max: Int = 200)(
-      implicit ec: ExecutionContext): Future[Seq[AdresniMisto]] =
+      implicit @nowarn ec: ExecutionContext): Future[Seq[AdresniMisto]] =
       run(query[AdresniMisto]
         filter(_.kodObce == lift(kod))
         take lift(max)
       )
 
     def castObce(tsv: String, max: Int = 20)(
-      implicit ec: ExecutionContext): Future[Seq[CastObce]] =
+      implicit @nowarn ec: ExecutionContext): Future[Seq[CastObce]] =
       run(query[CastObce]
         filter(_.kodObce == lift(kod))
         filter(_.nazev @@ lift(tsv))
@@ -78,7 +79,7 @@ trait RuianDsl extends RuianDb {
   def ulice(kod: Kod[Ulice]) = new {
 
     def adresniMista(max: Int = 200)(
-      implicit ec: ExecutionContext): Future[Seq[AdresniMisto]] =
+      implicit @nowarn ec: ExecutionContext): Future[Seq[AdresniMisto]] =
       run(query[AdresniMisto]
         filter(_.kodUlice contains lift(kod))
         take lift(max)
@@ -89,7 +90,7 @@ trait RuianDsl extends RuianDb {
   def castObce(kod: Kod[CastObce]) = new {
 
     def adresniMista(max: Int = 200)(
-      implicit ec: ExecutionContext): Future[Seq[AdresniMisto]] =
+      implicit @nowarn ec: ExecutionContext): Future[Seq[AdresniMisto]] =
       run(query[AdresniMisto]
         filter(_.kodCastiObce contains lift(kod))
         take lift(max)

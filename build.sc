@@ -19,26 +19,35 @@ import upickle.default._
 
 object V {
   val app = "0.2-SNAPSHOT"
-  val scala213 = "2.13.5"
+  val scala213 = "2.13.6"
   val scalaJs = "1.5.1"
 }
 
 object D {
-  val configAnnotation = ivy"com.wacai::config-annotation:0.4.1"
-  val quill = ivy"io.getquill::quill-jasync-postgres:3.7.0"
-  val upickle = ivy"com.lihaoyi::upickle::1.3.11"
+  val configAnnotation = ivy"com.wacai::config-annotation:0.4.2"
+  val quill = ivy"io.getquill::quill-jasync-postgres:3.8.0"
+  val upickle = ivy"com.lihaoyi::upickle::1.4.0"
 }
 
 val compilerOptions = Seq(
-  "-deprecation",                      // Emit warning and location for usages of deprecated APIs.
-  "-encoding", "utf-8",                // Specify character encoding used by source files.
-  "-explaintypes",                     // Explain type errors in more detail.
-  "-feature",                          // Emit warning and location for usages of features that should be imported explicitly.
-  "-language:higherKinds",             // Allow higher-kinded types
-  "-unchecked",                        // Enable additional warnings where generated code depends on assumptions.
-  "-Xcheckinit",                       // Wrap field accessors to throw an exception on uninitialized access.
+  "-Xlint:deprecation",      // Emit warning and location for usages of deprecated APIs.
+  "-encoding", "utf-8",      // Specify character encoding used by source files.
+  "-explaintypes",           // Explain type errors in more detail.
+  "-feature",                // Emit warning and location for usages of features that should be imported explicitly.
+  "-language:higherKinds",   // Allow higher-kinded types
+  "-unchecked",              // Enable additional warnings where generated code depends on assumptions.
+  "-Xcheckinit",             // Wrap field accessors to throw an exception on uninitialized access.
   "-target:jvm-1.8",
-  "-Ymacro-annotations"
+  "-Ymacro-annotations",
+  "-Wdead-code",             // Warn when dead code is identified.
+  "-Wextra-implicit",        // Warn when more than one implicit parameter section is defined.
+  "-Wnumeric-widen",         // Warn when numerics are widened.
+  "-Wunused:imports",        // Warn if an import selector is not referenced.
+  "-Wunused:locals",         // Warn if a local definition is unused.
+  "-Wunused:params",         // Warn if a value parameter is unused.
+  "-Wunused:patvars",        // Warn if a variable bound in a pattern is unused.
+  "-Wunused:privates",       // Warn if a private member is unused.
+  "-Wvalue-discard"          // Warn when non-Unit expression results are unused.
 )
 
 trait Common extends ScalaModule with PublishModule {
@@ -90,6 +99,13 @@ object dba extends Common {
       s"-Xmacro-settings:conf.output.dir=${millSourcePath / 'resources}"
     )
   }
+}
+
+def compileAll(): Command[Unit] = T.command{
+  model.jvm.compile()
+  model.js.compile()
+  dba.compile()
+  ()
 }
 
 def publishLocal(): Command[Unit] = T.command{

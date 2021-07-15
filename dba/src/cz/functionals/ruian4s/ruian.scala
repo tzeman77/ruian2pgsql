@@ -2,7 +2,9 @@ package cz.functionals.ruian4s
 
 import com.wacai.config.annotation.conf
 
-@conf trait ruian {
+import scala.annotation.nowarn
+
+@nowarn @conf trait ruian {
 
   final val db = new {
     val host = "localhost"
