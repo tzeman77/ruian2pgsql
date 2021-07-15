@@ -19,42 +19,13 @@ import io.getquill.{PostgresJAsyncContext, Query, SnakeCase}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait RuianDb {
+trait RuianDb extends RuianDbMappers {
 
   def configPrefix: String = "ruian.db"
 
   lazy val ctx = new PostgresJAsyncContext(SnakeCase, configPrefix)
 
   import ctx._
-
-  implicit val encodeTypSo: MappedEncoding[TypSo, String] =
-    MappedEncoding[TypSo, String](_.id)
-  implicit val decodeTypSo: MappedEncoding[String, TypSo] =
-    MappedEncoding[String, TypSo](TypSo(_))
-
-  implicit val encodeJtsk: MappedEncoding[Jtsk, String] =
-    MappedEncoding[Jtsk, String](v => s"(${v.x}, ${v.y})")
-  implicit val decodeJtsk: MappedEncoding[String, Jtsk] =
-    MappedEncoding[String, Jtsk](s => {
-      val a = s.stripPrefix("(").stripSuffix(")").split(',')
-      Jtsk(BigDecimal(a(0)), BigDecimal(a(1)))
-    })
-
-  implicit class TsvQuery(col: String) {
-
-    def @@(q: String) = quote {
-      infix"${col}_tsv @@ to_tsquery($q)".as[Boolean]
-    }
-
-  }
-
-  implicit class TsvQueryOpt(col: Option[String]) {
-
-    def @@(q: String) = quote {
-      infix"${col}_tsv @@ to_tsquery($q)".as[Boolean]
-    }
-
-  }
 
   object detail {
 
