@@ -18,7 +18,7 @@ import mill.scalalib.publish._
 import upickle.default._
 
 object V {
-  val app = "0.2-SNAPSHOT"
+  val app = "0.2"
   val scala213 = "2.13.6"
   val scalaJs = "1.5.1"
 }
