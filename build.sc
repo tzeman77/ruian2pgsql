@@ -25,7 +25,7 @@ object V {
 
 object D {
   val configAnnotation = ivy"com.wacai::config-annotation:0.4.2"
-  val quill = ivy"io.getquill::quill-jasync-postgres:3.8.0"
+  val quill = ivy"io.getquill::quill-jasync-postgres:3.11.0"
   val upickle = ivy"com.lihaoyi::upickle::1.4.0"
 }
 

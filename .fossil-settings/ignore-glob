@@ -8,3 +8,4 @@
 out/
 pgsql/
 import/tmp/
+queries.sql

@@ -15,7 +15,7 @@
  */
 package cz.functionals.ruian4s
 
-import io.getquill.{PostgresJAsyncContext, Query, SnakeCase}
+import io.getquill.{PostgresJAsyncContext, Query, Quoted, SnakeCase}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,7 +45,7 @@ trait RuianDb extends RuianDbMappers {
 
   object detail {
 
-    val templateQ: ctx.Quoted[Query[(((((((AdresniMisto, Obec), Okres), Kraj), Option[Momc]), Option[Mop]), Option[CastObce]), Option[Ulice])]] = quote {
+    val templateQ: Quoted[Query[(((((((AdresniMisto, Obec), Okres), Kraj), Option[Momc]), Option[Mop]), Option[CastObce]), Option[Ulice])]] = quote {
       query[AdresniMisto]
         .join(query[Obec]).on(_.kodObce == _.kod)
         .join(query[Okres]).on(_._2.kodOkresu == _.kod)
