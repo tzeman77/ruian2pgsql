@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Tomas Zeman <tomas@functionals.cz>
+ * Copyright 2021-2024 Tomas Zeman <tomas@functionals.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ object AdresniMisto {
     mop: Option[Mop] = None,
     castObce: Option[CastObce] = None,
     ulice: Option[Ulice] = None,
-    okres: Okres,
+    okres: Option[Okres] = None,
     kraj: Kraj
   )
 

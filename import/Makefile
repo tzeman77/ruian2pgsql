@@ -3,14 +3,19 @@ TAG=$(shell date -d "$$(date +%Y-%m-01) -1 day" +%Y%m%d)
 WGET=wget
 PSQL=psql -h localhost -U ruian -v ON_ERROR_STOP=on
 UNZIP=unzip
-OKRESY_URL="https://vdp.cuzk.cz/vdp/ruian/okresy/export?vc.kod=&ok.nazev=&ok.kod=&ohrada.id=&okg.sort=UZEMI&export=CSV"
+OKRESY_URL=https://services.cuzk.cz/sestavy/cis/UI_OKRES.zip
+KRAJE_URL=https://services.cuzk.cz/sestavy/cis/UI_VUSC.zip
 ADDR_URL=https://vdp.cuzk.cz/vymenny_format/csv/$(TAG)_OB_ADR_csv.zip
 STRUCT_URL=https://vdp.cuzk.cz/vymenny_format/csv/$(TAG)_strukt_ADR.csv.zip
 T=tmp
 
 wdir=$T/.dir
-okresy_csv=$T/okresy.csv
-okresy_imp=$T/okresy.imp
+kraje_zip=$T/UI_VUSC.zip
+kraje_csv=$T/UI_VUSC.csv
+kraje_imp=$T/UI_VUSC.imp
+okresy_zip=$T/UI_OKRES.zip
+okresy_csv=$T/UI_OKRES.csv
+okresy_imp=$T/UI_OKRES.imp
 addr_zip=$T/addr.zip
 addr_cmd=$T/addr.cmd
 addr_imp=$T/addr.imp
@@ -21,9 +26,9 @@ struct_imp=$T/struct.imp
 
 all: download import refresh
 
-download: $(okresy_csv) $(addr_zip) $(struct_zip)
+download: $(kraje_csv) $(okresy_csv) $(addr_zip) $(struct_zip)
 
-import: $(okresy_imp) $(struct_imp) $(addr_imp)
+import: $(kraje_imp) $(okresy_imp) $(struct_imp) $(addr_imp)
 
 refresh:
 	@echo "BEGIN; \
@@ -73,16 +78,42 @@ $(struct_imp): $(struct_zip)
 	$(PSQL) 
 	touch $@
 
-$(okresy_csv): $(wdir)
-	$(WGET) -O $@.tmp $(OKRESY_URL)
-	expr `cat $@.tmp | wc -l` '>' 70 
+$(kraje_zip): $(wdir)
+	$(WGET) -O $@.tmp $(KRAJE_URL)
 	mv $@.tmp $@ && touch $@
+
+$(kraje_csv): $(kraje_zip)
+	$(UNZIP) -o -d $T $<
+	expr `cat $@ | wc -l` '>' 10 
+	touch $@
+
+$(kraje_imp): $(kraje_csv)
+	@echo "BEGIN; \
+	TRUNCATE TABLE ruian_kraj; \
+	\copy ruian_kraj \
+	FROM '$<' WITH (FORMAT CSV, DELIMITER ';', HEADER TRUE, ENCODING 'windows-1250'); \
+	COMMIT; " | \
+	$(PSQL) 
+	touch $@
+
+$(okresy_zip): $(wdir)
+	$(WGET) -O $@.tmp $(OKRESY_URL)
+	mv $@.tmp $@ && touch $@
+
+$(okresy_csv): $(okresy_zip)
+	$(UNZIP) -o -d $T $<
+	expr `cat $@ | wc -l` '>' 70 
+	touch $@
 
 $(okresy_imp): $(okresy_csv)
 	@echo "BEGIN; \
 	TRUNCATE TABLE ruian_okres; \
-	\copy ruian_okres FROM '$<' \
-	WITH (FORMAT CSV, DELIMITER ';', HEADER TRUE, ENCODING 'utf-8'); \
+	\copy ruian_okres \
+	(kod_okresu, nazev_okresu, kod_kraje, nuts_lau, plati_od, plati_do, datum_vzniku) \
+	FROM '$<' WITH (FORMAT CSV, DELIMITER ';', HEADER TRUE, ENCODING 'windows-1250'); \
+	UPDATE ruian_okres o \
+	SET nazev_kraje = k.nazev_kraje \
+	FROM ruian_kraj k WHERE o.kod_kraje = k.kod_kraje; \
 	COMMIT; " | \
 	$(PSQL) 
 	touch $@

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Tomas Zeman <tomas@functionals.cz>
+ * Copyright 2021-2024 Tomas Zeman <tomas@functionals.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ import Pickler._
  * @param kodOkresu Kod okresu.
  * @param kodKraje Kod kraje.
  */
-case class Obec(kod: Kod[Obec], nazev: String, kodOkresu: Kod[Okres],
+case class Obec(kod: Kod[Obec],
+  nazev: String,
+  kodOkresu: Option[Kod[Okres]] = None,
   kodKraje: Kod[Kraj])
 
 object Obec {

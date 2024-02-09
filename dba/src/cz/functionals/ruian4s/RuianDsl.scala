@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Tomas Zeman <tomas@functionals.cz>
+ * Copyright 2021-2024 Tomas Zeman <tomas@functionals.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ trait RuianDsl extends RuianDb {
   def okres(kod: Kod[Okres]) = new {
 
     final def obce(implicit @nowarn ec: ExecutionContext): Future[Seq[Obec]] =
-      run(query[Obec] filter(_.kodOkresu == lift(kod)) sortBy(_.nazev))
+      run(query[Obec] filter(_.kodOkresu contains lift(kod)) sortBy(_.nazev))
 
   }
 
@@ -205,4 +205,4 @@ trait RuianDsl extends RuianDb {
 
 }
 
-object RuianDsl extends RuianDsl
+@nowarn object RuianDsl extends RuianDsl

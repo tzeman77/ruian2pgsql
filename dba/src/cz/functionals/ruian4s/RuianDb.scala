@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Tomas Zeman <tomas@functionals.cz>
+ * Copyright 2021-2024 Tomas Zeman <tomas@functionals.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package cz.functionals.ruian4s
 
 import io.getquill.{PostgresJAsyncContext, Query, Quoted, SnakeCase}
 
+import scala.annotation.nowarn
 import scala.concurrent.{ExecutionContext, Future}
 
 trait RuianDb extends RuianDbMappers {
@@ -29,7 +30,7 @@ trait RuianDb extends RuianDbMappers {
 
   implicit class TsvQuery(col: String) {
 
-    def @@(q: String) = quote {
+    @nowarn def @@(q: String) = quote {
       infix"${col}_tsv @@ to_tsquery($q)".as[Boolean]
     }
 
@@ -37,7 +38,7 @@ trait RuianDb extends RuianDbMappers {
 
   implicit class TsvQueryOpt(col: Option[String]) {
 
-    def @@(q: String) = quote {
+    @nowarn def @@(q: String) = quote {
       infix"${col}_tsv @@ to_tsquery($q)".as[Boolean]
     }
 
@@ -45,11 +46,11 @@ trait RuianDb extends RuianDbMappers {
 
   object detail {
 
-    val templateQ: Quoted[Query[(((((((AdresniMisto, Obec), Okres), Kraj), Option[Momc]), Option[Mop]), Option[CastObce]), Option[Ulice])]] = quote {
+    val templateQ: Quoted[Query[(((((((AdresniMisto, Obec), Kraj), Option[Okres]), Option[Momc]), Option[Mop]), Option[CastObce]), Option[Ulice])]] = quote {
       query[AdresniMisto]
         .join(query[Obec]).on(_.kodObce == _.kod)
-        .join(query[Okres]).on(_._2.kodOkresu == _.kod)
         .join(query[Kraj]).on(_._2.kodKraje == _.kod)
+        .leftJoin(query[Okres]).on(_._1._2.kodOkresu contains _.kod)
         .leftJoin(query[Momc]).on(_._1._1._1.kodMomc contains _.kod)
         .leftJoin(query[Mop]).on(_._1._1._1._1.kodMop contains _.kod)
         .leftJoin(query[CastObce])
@@ -58,8 +59,8 @@ trait RuianDb extends RuianDbMappers {
         .on(_._1._1._1._1._1._1.kodUlice contains _.kod)
     }
 
-    def mapper(d: (((((((AdresniMisto, Obec), Okres), Kraj), Option[Momc]), Option[Mop]), Option[CastObce]), Option[Ulice])): AdresniMisto.Detail = d match {
-      case (((((((adm, ob), okr), kr), momc), mop), cp), str) =>
+    def mapper(d: (((((((AdresniMisto, Obec), Kraj), Option[Okres]), Option[Momc]), Option[Mop]), Option[CastObce]), Option[Ulice])): AdresniMisto.Detail = d match {
+      case (((((((adm, ob), kr), okr), momc), mop), cp), str) =>
         AdresniMisto.Detail(
           adm = adm,
           obec = ob,
@@ -74,11 +75,13 @@ trait RuianDb extends RuianDbMappers {
 
   }
 
+  @nowarn("msg=never used")
   def adresniMisto(kod: Kod[AdresniMisto])(
     implicit ec: ExecutionContext): Future[Option[AdresniMisto]] = {
     run(query[AdresniMisto].filter(_.kod == lift(kod))) map(_.headOption)
   }
 
+  @nowarn("msg=never used")
   def adresniMistoDetail(kod: Kod[AdresniMisto])(
     implicit ec: ExecutionContext): Future[Option[AdresniMisto.Detail]] = {
     run(
