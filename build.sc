@@ -19,14 +19,14 @@ import upickle.default._
 
 object V {
   val app = "0.4-SNAPSHOT"
-  val scala213 = "2.13.6"
-  val scalaJs = "1.5.1"
+  val scala213 = "2.13.13"
+  val scalaJs = "1.16.0"
 }
 
 object D {
   val configAnnotation = ivy"com.wacai::config-annotation:0.4.2"
   val quill = ivy"io.getquill::quill-jasync-postgres:3.11.0"
-  val upickle = ivy"com.lihaoyi::upickle::1.4.0"
+  val upickle = ivy"com.lihaoyi::upickle::2.0.0"
 }
 
 val compilerOptions = Seq(
@@ -37,7 +37,7 @@ val compilerOptions = Seq(
   "-language:higherKinds",   // Allow higher-kinded types
   "-unchecked",              // Enable additional warnings where generated code depends on assumptions.
   "-Xcheckinit",             // Wrap field accessors to throw an exception on uninitialized access.
-  "-target:jvm-1.8",
+  "-release:8",
   "-Ymacro-annotations",
   "-Wdead-code",             // Warn when dead code is identified.
   "-Wextra-implicit",        // Warn when more than one implicit parameter section is defined.
@@ -72,8 +72,8 @@ trait Common extends ScalaModule with PublishModule {
 
   override def scalacOptions = T{compilerOptions}
 
-  override def sources: Sources = T.sources {
-    super.sources() :+ PathRef(millSourcePath / 'shared)
+  override def sources: Target[Seq[PathRef]] = T.sources {
+    super.sources() :+ PathRef(millSourcePath / "shared")
   }
 
 }
@@ -96,7 +96,7 @@ object dba extends Common {
   override def ivyDeps: T[Loose.Agg[Dep]] = Agg(D.configAnnotation, D.quill)
   override def scalacOptions = T {
     super.scalacOptions.map(_ :+
-      s"-Xmacro-settings:conf.output.dir=${millSourcePath / 'resources}"
+      s"-Xmacro-settings:conf.output.dir=${millSourcePath / "resources"}"
     )
   }
 }
@@ -114,10 +114,10 @@ def publishLocal(): Command[Unit] = T.command{
   dba.publishLocal()()
 }
 
-def publishM2Local(p: os.Path): Command[Unit] = T.command{
-  model.jvm.publishM2Local(p.toString)()
-  model.js.publishM2Local(p.toString)()
-  dba.publishM2Local(p.toString)()
+def publishM2Local(p: String): Command[Unit] = T.command{
+  model.jvm.publishM2Local(p)()
+  model.js.publishM2Local(p)()
+  dba.publishM2Local(p)()
   ()
 }
 
